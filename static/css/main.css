@@ -1,0 +1,114 @@
+main > .container {
+    padding: 60px 15px 0;
+}
+
+
+.best-members {
+    margin: 16px;
+}
+
+.best-members > ul {
+    margin-top: 8px;
+}
+
+.header {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-size: 30px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.question {
+    margin-top: 10px;
+    padding: 10px;
+}
+
+
+.header > a {
+    font-size: 18px;
+    font-weight: normal;
+    margin-left: 16px;
+}
+
+.question:hover {
+    background-color: #FAFAFA;
+    border-radius: 15px;
+}
+
+.question-image {
+    max-width: 175px;
+    max-height: 175px;
+}
+
+.question-text-block {
+    padding-left: 32px;
+}
+
+.question-text-block > h2 {
+    font-family: "Helvetica", "sans-serif";
+    font-size: 30px;
+}
+
+.question-text-block > p {
+    font-family: "Helvetica", "sans-serif";
+    font-size: 18px;
+}
+
+
+.question-answer-button {
+    background-color: transparent;
+
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 10px;
+    border-radius: 15px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.question-answer-button:hover {
+    background-color: lightgray;
+}
+
+.question-tags {
+    border: 1px solid transparent;
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.question-tags > a {
+    font-size: 16px;
+}
+
+.user-rating-block {
+    margin-top: 10px;
+}
+
+.user-rating-button {
+    background-color: transparent;
+    border: 0;
+}
+
+.user-rating-button .bi-chevron-double-down:hover {
+    fill: red;
+}
+
+.user-rating-button .bi-chevron-double-up:hover {
+    fill: green;
+}
+
+.pagination {
+    margin-top: 16px;
+}
+
+.tags {
+    margin: 16px;
+}
+
+
+.tag {
+    margin: 5px 2px;
+}
