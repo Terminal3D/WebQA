@@ -69,7 +69,7 @@ main > .container {
 }
 
 .question-answer-button:hover {
-    background-color: lightgray;
+    background-color: #ECECEC;
 }
 
 .question-tags {

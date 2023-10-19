@@ -1,0 +1,12 @@
+#ask-button {
+    font-weight: bold;
+    font-family: "Helvetica", "sans-serif";
+    max-width: 100px;
+}
+
+.user-icon {
+    border-radius: 50%;
+
+    align-items: center;
+    float: left;
+}
