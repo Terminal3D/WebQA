@@ -14,3 +14,9 @@ header {
     align-items: center;
     float: left;
 }
+
+
+.auth-button:hover {
+    background-color: #ECECEC;
+    border-radius: 15px;
+}

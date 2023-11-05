@@ -1,21 +1,25 @@
+{% load static %}
+
 <!doctype html>
 <html lang="en" class="h-100" data-bs-theme="auto">
+
 <head>
 
     <title>NoAnswerHere</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="../static/css/bootstrap.css" rel="stylesheet">
-    <link href="../static/css/main.css" rel="stylesheet">
-    <link href="../static/css/header.css" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <link href="{% static 'css/header.css' %}" rel="stylesheet">
 
 </head>
+
 <body class="d-flex flex-column h-100">
 
 <header class="py-3 mb-3 border-bottom fixed-top bg-body">
     <div class="container-fluid d-grid gap-1 align-items-center"
-         style="grid-template-columns: 0.75fr 0.05fr 1.75fr 0.5fr 0.5fr;">
+         style="grid-template-columns: 0.75fr 0.05fr 1.75fr 0.25fr 0.25fr 0.5fr;">
         <a class="text-decoration-none align-content-start ms-lg-auto me-lg-4 fs-4"
-           style="font-weight: 600; color: black;" href="index.html">
+           style="font-weight: 600; color: black;" href="{% url 'index' %}">
             No Answer Here
         </a>
 
@@ -26,47 +30,63 @@
                        style="border-radius: 48px">
             </form>
         </div>
-        <a href="ask.html" class="text-decoration-none">
-            <button class="btn btn-success rounded-pill px-5 d-flex justify-content-center" type="button"
-                    id="ask-button">ASK
-            </button>
+        <div>
+            <a href="{% url 'ask' %}" class="btn btn-success rounded-pill px-5 d-flex justify-content-center" id="ask-button">ASK
         </a>
-
-        <div class="flex-shrink-0 dropdown">
-            <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle me-lg-auto"
-               data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="../static/images/proger.png" alt="proger" width="36" height="36" class="rounded-circle">
-            </a>
-            <ul class="dropdown-menu text-small shadow" style="">
-                <li><a class="dropdown-item" href="settings.html">Settings</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="#">Sign out</a></li>
-            </ul>
-
         </div>
+
+        {% if is_authorized %}
+            <div class="flex-shrink-0 dropdown">
+                <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle me-lg-auto"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{% static 'images/proger.png' %}" alt="user_icon" width="36" height="36"
+                         class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu text-small shadow" style="">
+                    <li><a class="dropdown-item" href="{% url 'settings' %}">Settings</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                </ul>
+            </div>
+            <div></div>
+
+        {% else %}
+
+            <div class="flex-shrink-0 pe-lg-3 ms-auto">
+                <a href="{% url 'login' %}" class="text-decoration-none fs-5 py-lg-1" style="font-weight: 600; color: black">Log In</a>
+            </div>
+            <div class="flex-shrink-0">
+                <a href="{% url 'register' %}" class="text-decoration-none py-lg-1" style="color: black">Sing Up</a>
+            </div>
+        {% endif %}
+
     </div>
 </header>
 
 <main class="flex-shrink-0">
     <div class="container">
         <div class="row">
-            <div class="col-9"></div>
+            <div class="col-9">
+                {% block content %}
+
+                    Hello its empty block!
+
+                {% endblock %}
+            </div>
             <div class="col-3">
                 <div class="tags">
                     <div class="header">
                         Popular Tags
                     </div>
                     <div>
-                        <button type="button" class="btn btn-outline-primary tag">perl</button>
-                        <button type="button" class="btn btn-outline-secondary tag">python</button>
-                        <button type="button" class="btn btn-outline-success tag">TechnoPark</button>
-                        <button type="button" class="btn btn-outline-danger tag">MySQL</button>
-                        <button type="button" class="btn btn-outline-warning tag">django</button>
-                        <button type="button" class="btn btn-outline-info tag">Mail.Ru</button>
-                        <button type="button" class="btn btn-outline-dark tag">Voloshin</button>
-                        <button type="button" class="btn btn-outline-primary tag">Firefox</button>
+                        {% for tag in tags %}
+                            <a href="{% url 'tag' tag_name=tag.tag %}" class="text-decoration-none">
+                                <button type="button"
+                                        class="btn {% cycle 'btn-outline-primary' 'btn-outline-secondary' 'btn-outline-success' 'btn-outline-danger' 'btn-outline-warning' 'btn-outline-info' 'btn-outline-dark' %} tag">{{ tag.tag }}</button>
+                            </a>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="best-members">
@@ -74,11 +94,9 @@
                         Best Members
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a href="">Mr. Freeman</a></li>
-                        <li class="list-group-item"><a href="">Dr. House</a></li>
-                        <li class="list-group-item"><a href="">Bender</a></li>
-                        <li class="list-group-item"><a href="">Queen Victoria</a></li>
-                        <li class="list-group-item"><a href="">V. Pupkin</a></li>
+                        {% for name in best_members %}
+                            <li class="list-group-item"><a href="">{{ name.name }}</a></li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -120,7 +138,7 @@
         </div>
     </div>
 </footer>
-<script src="../static/js/bootstrap.bundle.min.js"></script>
+<script src="{% static '/js/bootstrap.bundle.min.js' %}"></script>
 
 </body>
 </html>
