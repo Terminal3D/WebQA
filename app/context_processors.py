@@ -1,4 +1,5 @@
-from app.views import TAGS, BEST_MEMBERS, IS_AUTHORIZED
+from app.views import TAGS, BEST_MEMBERS
+from WebQA.settings import IS_AUTHORIZED
 
 
 def tags_context(request):

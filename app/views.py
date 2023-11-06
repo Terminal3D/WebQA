@@ -1,7 +1,7 @@
 import random
 
-from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.shortcuts import render
 
 TAGS = [
     {
@@ -81,16 +81,13 @@ ANSWERS = [
     } for i in range(1, 12)
 ]
 
-IS_AUTHORIZED = False
-
 
 # Create your views here.
 
 def paginate(objects, request, per_page):
     page = request.GET.get('page', 1)
     paginator = Paginator(objects, per_page)
-    p = paginator.get_page(page)
-    return p
+    return paginator.get_page(page)
 
 
 def index(request):
@@ -127,4 +124,4 @@ def register(request):
 
 
 def settings(request):
-    return render(settings, 'settings.html')
+    return render(request, 'settings.html')

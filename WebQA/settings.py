@@ -134,3 +134,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static/images',
     BASE_DIR / 'static/js',
 ]
+
+
+IS_AUTHORIZED = True
