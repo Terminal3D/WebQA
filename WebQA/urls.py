@@ -27,5 +27,5 @@ urlpatterns = [
     path('ask', views.ask, name="ask"),
     path('login', views.login, name="login"),
     path('singup', views.register, name="register"),
-    path('setting', views.settings, name="settings")
+    path('settings', views.settings, name="settings")
 ]
