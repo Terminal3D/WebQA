@@ -5,22 +5,20 @@ from django.utils import timezone
 
 
 # Create your models here.
-class QuestionManager(models.Manager):
-    def get_hot_questions(self):
-        return self.get_queryset().annotate(
-            likes=Count('question_rating__reaction', filter=Q(question_rating__reaction__reaction=1)),
-            dislikes=Count('question_rating__reaction', filter=Q(question_rating__reaction__reaction=-1)),
-        ).annotate(
-            total_rating=F('likes') - F('dislikes'),
-            num_answers=Count('answers')
+def sort_by_rating(queryset):
+    return queryset.order_by('-question_rating__get_rating', '-created_at')
 
-        ).order_by('-total_rating')
+
+class QuestionManager(models.Manager):
+
+    def get_hot_questions(self):
+        return sort_by_rating(self.get_queryset())
 
     def get_new_questions(self):
-        return self.get_queryset().annotate(num_answers=Count('answers')).order_by('-created_at')
+        return self.get_queryset().order_by('-created_at')
 
     def get_questions_by_tag(self, tag_name):
-        return self.get_queryset().annotate(num_answers=Count('answers')).filter(tags__tag_name=tag_name)
+        return sort_by_rating(self.get_queryset().filter(tags__tag_name=tag_name))
 
 
 class TagManager(models.Manager):
@@ -28,20 +26,10 @@ class TagManager(models.Manager):
         return self.get_queryset().annotate(num_questions=Count('questioninstance')).order_by('-num_questions')
 
 
-class Question(models.Model):
-    title = models.CharField(max_length=256, blank=True, null=True)
-    question_body = models.TextField(blank=True, null=True)
-    objects = QuestionManager()
+class AnswerManager(models.Manager):
 
-    class Meta:
-        abstract = True
-
-
-class Answer(models.Model):
-    answer_body = models.TextField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
+    def get_answers(self):
+        return self.get_queryset().order_by('-answer_rating__get_rating', '-created_at')
 
 
 class Tag(models.Model):
@@ -53,16 +41,10 @@ class Tag(models.Model):
 
 
 class Rating(models.Model):
-
-    def get_rating(self):
-        reactions = self.reaction.aggregate(
-            likes=Count(Case(When(reaction=1, then=1))),
-            dislikes=Count(Case(When(reaction=-1, then=1)))
-        )
-        return reactions['likes'] - reactions['dislikes']
+    get_rating = models.IntegerField(default=0)
 
     def __str__(self):
-        return str(self.get_rating())
+        return str(self.get_rating)
 
 
 class Reaction(models.Model):
@@ -79,8 +61,10 @@ class Profile(models.Model):
         return self.user.get_username()
 
 
-class AnswerInstance(Answer):
-    # answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+class AnswerInstance(models.Model):
+    answer_body = models.TextField(blank=True, null=True)
+    objects = AnswerManager()
+
     created_at = models.DateTimeField(default=timezone.now)
     answer_author = models.ForeignKey(Profile, on_delete=models.RESTRICT)
     answer_rating = models.OneToOneField(Rating, on_delete=models.CASCADE)
@@ -91,12 +75,15 @@ class AnswerInstance(Answer):
         return 'Answer for ' + self.question.title
 
 
-class QuestionInstance(Question):
-    # question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class QuestionInstance(models.Model):
+    title = models.CharField(max_length=256, blank=True, null=True)
+    question_body = models.TextField(blank=True, null=True)
+    objects = QuestionManager()
     created_at = models.DateTimeField(default=timezone.now)
     question_rating = models.OneToOneField(Rating, on_delete=models.CASCADE)
     question_author = models.ForeignKey(Profile, on_delete=models.RESTRICT)
     tags = models.ManyToManyField(Tag)
+    num_answers = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -108,5 +95,3 @@ class BestUser(models.Model):
 
     def __str__(self):
         return self.profile.user.get_username() + ' (' + str(self.total_rating) + ')'
-
-

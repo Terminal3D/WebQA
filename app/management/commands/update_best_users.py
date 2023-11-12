@@ -11,24 +11,23 @@ class Command(BaseCommand):
     def get_best_users(self):
         one_week_ago = timezone.now() - timedelta(weeks=1)
 
-        question_ratings = Rating.objects.filter(
-            questioninstance__created_at__gte=one_week_ago
+        question_ratings = QuestionInstance.objects.filter(
+            created_at__gte=one_week_ago
         ).annotate(
-            total_rating=Sum('reaction__reaction')
+            total_rating=Sum('question_rating__get_rating')
         )
 
-        answer_ratings = Rating.objects.filter(
-            answerinstance__created_at__gte=one_week_ago
+        answer_ratings = AnswerInstance.objects.filter(
+            created_at__gte=one_week_ago
         ).annotate(
-            total_rating=Sum('reaction__reaction')
+            total_rating=Sum('answer_rating__get_rating')
         )
 
-        # Связываем рейтинги с пользователями
         top_authors = Profile.objects.annotate(
             total_rating=Subquery(
-                question_ratings.filter(questioninstance__question_author=OuterRef('pk')).values('total_rating')[:1]
+                question_ratings.filter(question_author=OuterRef('pk')).values('total_rating')[:1]
             ) + Subquery(
-                answer_ratings.filter(answerinstance__answer_author=OuterRef('pk')).values('total_rating')[:1]
+                answer_ratings.filter(answer_author=OuterRef('pk')).values('total_rating')[:1]
             )
         ).order_by('-total_rating')[:10]
         return top_authors

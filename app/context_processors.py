@@ -1,4 +1,3 @@
-from app.views import BEST_MEMBERS
 from app.models import Tag, BestUser
 from WebQA.settings import IS_AUTHORIZED
 

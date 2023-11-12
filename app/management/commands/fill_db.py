@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.db.models import F
+
 from app.models import QuestionInstance, AnswerInstance, Tag, Rating, Reaction, Profile
 import random
 
@@ -42,8 +44,8 @@ class Command(BaseCommand):
             tmpQuestion = QuestionInstance(
                 question_rating=Rating.objects.create(),
                 question_author=question_author,
-                title=f'Question Title{i}',
-                question_body=f'Question number: {i}, from user: {question_author}.',
+                title=f'Question Title{i + 1}',
+                question_body=f'Question number: {i + 1} , from user: {question_author}.',
             )
             question_objects.append(tmpQuestion)
         created_questions = QuestionInstance.objects.bulk_create(question_objects)
@@ -65,6 +67,7 @@ class Command(BaseCommand):
                 answer_rating=Rating.objects.create(),
                 answer_body=f'Answer for question with id: {question.id}, from user: {answer_author}. Answer num: {i}'
             ))
+            QuestionInstance.objects.filter(id=question.id).update(num_answers=F('num_answers') + 1)
         AnswerInstance.objects.bulk_create(answer_objects)
 
     def create_tags(self, num_tags):
@@ -76,10 +79,23 @@ class Command(BaseCommand):
         profiles = list(Profile.objects.all())
         ratings = list(Rating.objects.all())
         reaction_objects = []
-        for i in range(num_ratings):
-            reaction_objects.append(Reaction(
-                user=random.choice(profiles),
-                reaction=random.choice([-1, 1, 1, 1, 1]),
-                rating=random.choice(ratings)
-            ))
+
+        for _ in range(num_ratings):
+            while True:
+                profile = random.choice(profiles)
+                rating = random.choice(ratings)
+
+                if not Reaction.objects.filter(user=profile, rating=rating).exists():
+                    reaction_value = random.choice([-1, 1, 1, 1, 1])
+                    if reaction_value == 1:
+                        Rating.objects.filter(id=rating.id).update(get_rating=F('get_rating') + 1)
+                    elif reaction_value == -1:
+                        Rating.objects.filter(id=rating.id).update(get_rating=F('get_rating') + 1)
+                    reaction_objects.append(Reaction(
+                        user=profile,
+                        reaction=reaction_value,
+                        rating=rating
+                    ))
+                    break
+
         Reaction.objects.bulk_create(reaction_objects)

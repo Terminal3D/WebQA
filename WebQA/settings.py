@@ -129,7 +129,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static/js',
 ]
 
-IS_AUTHORIZED = False
+IS_AUTHORIZED = True
 
 MEDIA_ROOT = BASE_DIR / 'uploads'
 MEDIA_URL = '/uploads/'
