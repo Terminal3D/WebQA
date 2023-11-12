@@ -2,41 +2,7 @@ import random
 
 from django.core.paginator import Paginator
 from django.shortcuts import render
-
-TAGS = [
-    {
-        'id': 0,
-        'tag': "perl"
-    },
-    {
-        'id': 1,
-        'tag': "python"
-    },
-    {
-        'id': 2,
-        'tag': "TechnoPark"
-    },
-    {
-        'id': 3,
-        'tag': "MySQL"
-    },
-    {
-        'id': 4,
-        'tag': "django"
-    },
-    {
-        'id': 5,
-        'tag': "Mail.ru"
-    },
-    {
-        'id': 6,
-        'tag': "Voloshin"
-    },
-    {
-        'id': 7,
-        'tag': "Firefox"
-    },
-]
+from app.models import QuestionInstance, AnswerInstance, Tag
 
 BEST_MEMBERS = [
     {
@@ -61,26 +27,6 @@ BEST_MEMBERS = [
     },
 ]
 
-QUESTIONS = [
-    {
-        'id': i,
-        'title': f'Question {i}',
-        'content': f'Long lorem ipsum{i}',
-        'answers_count': random.randint(1, 400),
-        'tags': [
-            random.choice(TAGS)['tag'] for _ in range(1, random.randint(2, 5))
-        ]
-
-    } for i in range(1, 30)
-]
-
-ANSWERS = [
-    {
-        'id': i,
-        'content': f'Long lorem ipsum answer{i}',
-    } for i in range(1, 12)
-]
-
 
 # Create your views here.
 
@@ -91,24 +37,24 @@ def paginate(objects, request, per_page):
 
 
 def index(request):
-    return render(request, 'index.html', {'questions': paginate(QUESTIONS, request, 3), 'is_hot': False})
+    new_questions = QuestionInstance.objects.get_new_questions()
+    return render(request, 'index.html', {'questions': paginate(new_questions, request, 20), 'is_hot': False})
 
 
 def question(request, question_id):
-    item_question = QUESTIONS[question_id - 1]
-    return render(request, 'question.html', {'question': item_question, 'answers': paginate(ANSWERS, request, 5)})
+    item_question = QuestionInstance.objects.get(id=question_id)
+    answers = item_question.answers.all()
+    return render(request, 'question.html', {'question': item_question, 'answers': paginate(answers, request, 30)})
 
 
 def hot(request):
-    sorted_questions = sorted(QUESTIONS, key=lambda x: x['answers_count'], reverse=True)
-    return render(request, 'index.html', {'questions': paginate(sorted_questions, request, 3), 'is_hot': True})
+    hot_questions = QuestionInstance.objects.get_hot_questions()
+    return render(request, 'index.html', {'questions': paginate(hot_questions, request, 20), 'is_hot': True})
 
 
 def tag(request, tag_name):
-    filtered_questions = [
-        question for question in QUESTIONS if tag_name in question['tags']
-    ]
-    return render(request, 'index.html', {'questions': paginate(filtered_questions, request, 3), 'is_hot': False})
+    filtered_questions = QuestionInstance.objects.get_questions_by_tag(tag_name)
+    return render(request, 'index.html', {'questions': paginate(filtered_questions, request, 20), 'is_hot': False})
 
 
 def ask(request):

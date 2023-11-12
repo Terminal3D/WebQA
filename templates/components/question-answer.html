@@ -1,59 +1,62 @@
 {% load static %}
 <div class="row my-5" style="padding: 10px;">
-        <div class="col-2 question-image d-flex justify-content-center">
-            <div style="max-width: 75px; max-height: 75px">
-                <div class="row">
-                    <img src="{% static 'images/proger.png' %}" alt="user_icon" class="img-thumbnail">
-                </div>
-                <div class="row">
-                    <div class="user-rating-block d-flex justify-content-center">
-                        <div class="col-5 d-flex justify-content-end">
-                            <button class="user-rating-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                     fill="currentColor"
-                                     class="bi bi-chevron-double-up" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                          d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z"></path>
-                                    <path fill-rule="evenodd"
-                                          d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"></path>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="col-2 font-monospace d-flex justify-content-center">
-                            5
-                        </div>
-                        <div class="col-5 d-flex justify-content-start">
-                            <button class="user-rating-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                     fill="currentColor" class="bi bi-chevron-double-down"
-                                     viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                          d="M1.646 6.646a.5.5 0 0 1 .708 0L8 12.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
-                                    <path fill-rule="evenodd"
-                                          d="M1.646 2.646a.5.5 0 0 1 .708 0L8 8.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
-                                </svg>
-                            </button>
-                        </div>
-
+    <div class="col-2 question-image d-flex justify-content-center">
+        <div style="max-width: 75px; max-height: 75px">
+            <div class="row">
+                <img src="{{ answer.answer_author.avatar.url }}" alt="user_icon" class="img-thumbnail">
+            </div>
+            <div class="row">
+                <div class="user-rating-block d-flex justify-content-center">
+                    <div class="col-5 d-flex justify-content-end">
+                        <button class="user-rating-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                 fill="currentColor"
+                                 class="bi bi-chevron-double-up" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z"></path>
+                                <path fill-rule="evenodd"
+                                      d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"></path>
+                            </svg>
+                        </button>
                     </div>
+
+                    <div class="col-2 font-monospace d-flex justify-content-center">
+                        {{ answer.answer_rating.get_rating }}
+                    </div>
+                    <div class="col-5 d-flex justify-content-start">
+                        <button class="user-rating-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                 fill="currentColor" class="bi bi-chevron-double-down"
+                                 viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M1.646 6.646a.5.5 0 0 1 .708 0L8 12.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
+                                <path fill-rule="evenodd"
+                                      d="M1.646 2.646a.5.5 0 0 1 .708 0L8 8.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
                 </div>
             </div>
-
         </div>
-
-        <div class="col-10 question-text-block" style="border: 1px;">
-            <p>{{ answer.content }}
-            </p>
-
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault{{ answer.id }}">
-                <label class="form-check-label" for="flexCheckDefault{{ answer.id }}">
-                    Correct!
-                </label>
-            </div>
-
-        </div>
-
 
     </div>
+
+    <div class="col-10 question-text-block" style="border: 1px;">
+        <p>{{ answer.answer_body }}
+        </p>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value=""
+                   id="flexCheckDefault{{ answer.id }}" {% if answer.is_correct %}
+            checked {% endif %}
+            >
+            <label class="form-check-label" for="flexCheckDefault{{ answer.id }}">
+                Correct!
+            </label>
+        </div>
+
+    </div>
+
+
+</div>

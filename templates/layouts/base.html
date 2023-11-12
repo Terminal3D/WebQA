@@ -83,9 +83,9 @@
                     </div>
                     <div>
                         {% for tag in tags %}
-                            <a href="{% url 'tag' tag_name=tag.tag %}" class="text-decoration-none">
+                            <a href="{% url 'tag' tag_name=tag %}" class="text-decoration-none">
                                 <button type="button"
-                                        class="btn {% cycle 'btn-outline-primary' 'btn-outline-secondary' 'btn-outline-success' 'btn-outline-danger' 'btn-outline-warning' 'btn-outline-info' 'btn-outline-dark' %} tag">{{ tag.tag }}</button>
+                                        class="btn {% cycle 'btn-outline-primary' 'btn-outline-secondary' 'btn-outline-success' 'btn-outline-danger' 'btn-outline-warning' 'btn-outline-info' 'btn-outline-dark' %} tag">{{ tag }}</button>
                             </a>
                         {% endfor %}
                     </div>
@@ -96,7 +96,7 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         {% for name in best_members %}
-                            <li class="list-group-item"><a href="">{{ name.name }}</a></li>
+                            <li class="list-group-item"><a href="">{{ name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
