@@ -2,11 +2,16 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import AnswerInstance, QuestionInstance, Rating, Profile, Tag, Reaction, BestUser
+from .models import AnswerInstance, QuestionInstance, Profile, Tag, BestUser, QuestionReaction, AnswerReaction
 
 
-class ReactionInline(admin.TabularInline):
-    model = Reaction
+class QuestionReactionInline(admin.TabularInline):
+    model = QuestionReaction
+    extra = 1
+
+
+class AnswerReactionInline(admin.TabularInline):
+    model = AnswerReaction
     extra = 1
 
 
@@ -16,17 +21,17 @@ class AnswerInstanceInline(admin.TabularInline):
 
 
 class QuestionInstanceAdmin(admin.ModelAdmin):
-    inlines = [AnswerInstanceInline]
+    inlines = [QuestionReactionInline, AnswerInstanceInline]
 
 
-class RatingAdmin(admin.ModelAdmin):
-    inlines = [ReactionInline]
+class AnswerInstanceAdmin(admin.ModelAdmin):
+    inlines = [AnswerReactionInline]
 
 
-admin.site.register(AnswerInstance)
+admin.site.register(AnswerInstance, AnswerInstanceAdmin)
 admin.site.register(QuestionInstance, QuestionInstanceAdmin)
-admin.site.register(Rating, RatingAdmin)
 admin.site.register(Profile)
 admin.site.register(Tag)
-admin.site.register(Reaction)
 admin.site.register(BestUser)
+admin.site.register(QuestionReaction)
+admin.site.register(AnswerReaction)

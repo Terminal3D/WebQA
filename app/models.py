@@ -6,7 +6,7 @@ from django.utils import timezone
 
 # Create your models here.
 def sort_by_rating(queryset):
-    return queryset.order_by('-question_rating__get_rating', '-created_at')
+    return queryset.order_by('-question_rating', '-created_at')
 
 
 class QuestionManager(models.Manager):
@@ -29,7 +29,7 @@ class TagManager(models.Manager):
 class AnswerManager(models.Manager):
 
     def get_answers(self):
-        return self.get_queryset().order_by('-answer_rating__get_rating', '-created_at')
+        return self.get_queryset().order_by('-answer_rating', '-created_at')
 
 
 class Tag(models.Model):
@@ -38,19 +38,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.tag_name
-
-
-class Rating(models.Model):
-    get_rating = models.IntegerField(default=0)
-
-    def __str__(self):
-        return str(self.get_rating)
-
-
-class Reaction(models.Model):
-    reaction = models.IntegerField(default=0, help_text='-1 = dislike, 0 = no reaction, 1 = like')
-    user = models.ForeignKey('Profile', on_delete=models.CASCADE)
-    rating = models.ForeignKey('Rating', on_delete=models.CASCADE, related_name='reaction', null=True)
 
 
 class Profile(models.Model):
@@ -66,8 +53,8 @@ class AnswerInstance(models.Model):
     objects = AnswerManager()
 
     created_at = models.DateTimeField(default=timezone.now)
-    answer_author = models.ForeignKey(Profile, on_delete=models.RESTRICT)
-    answer_rating = models.OneToOneField(Rating, on_delete=models.CASCADE)
+    answer_author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    answer_rating = models.IntegerField(default=0)
     question = models.ForeignKey('QuestionInstance', on_delete=models.CASCADE, related_name='answers')
     is_correct = models.BooleanField(default=False)
 
@@ -80,13 +67,31 @@ class QuestionInstance(models.Model):
     question_body = models.TextField(blank=True, null=True)
     objects = QuestionManager()
     created_at = models.DateTimeField(default=timezone.now)
-    question_rating = models.OneToOneField(Rating, on_delete=models.CASCADE)
-    question_author = models.ForeignKey(Profile, on_delete=models.RESTRICT)
+    question_rating = models.IntegerField(default=0)
+    question_author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag)
     num_answers = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
+
+
+class QuestionReaction(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    question = models.ForeignKey(QuestionInstance, on_delete=models.CASCADE, related_name='question_reaction')
+    reaction = models.IntegerField(default=0, help_text='-1 = dislike, 0 = no reaction, 1 = like')
+
+    class Meta:
+        unique_together = ('user', 'question')
+
+
+class AnswerReaction(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    answer = models.ForeignKey(AnswerInstance, on_delete=models.CASCADE, related_name='answer_reaction')
+    reaction = models.IntegerField(default=0, help_text='-1 = dislike, 0 = no reaction, 1 = like')
+
+    class Meta:
+        unique_together = ('user', 'answer')
 
 
 class BestUser(models.Model):

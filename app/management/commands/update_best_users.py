@@ -1,7 +1,7 @@
 from django.db.models import Q, F, Sum, Case, When, Value, Subquery, OuterRef
 from datetime import timedelta
 from django.utils import timezone
-from app.models import QuestionInstance, AnswerInstance, Tag, Rating, Reaction, Profile, BestUser
+from app.models import QuestionInstance, AnswerInstance, Tag, Profile, BestUser
 from django.core.management.base import BaseCommand
 
 
@@ -14,13 +14,13 @@ class Command(BaseCommand):
         question_ratings = QuestionInstance.objects.filter(
             created_at__gte=one_week_ago
         ).annotate(
-            total_rating=Sum('question_rating__get_rating')
+            total_rating=Sum('question_rating')
         )
 
         answer_ratings = AnswerInstance.objects.filter(
             created_at__gte=one_week_ago
         ).annotate(
-            total_rating=Sum('answer_rating__get_rating')
+            total_rating=Sum('answer_rating')
         )
 
         top_authors = Profile.objects.annotate(

@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.db.models import F
 
-from app.models import QuestionInstance, AnswerInstance, Tag, Rating, Reaction, Profile
+from app.models import QuestionInstance, AnswerInstance, Tag, QuestionReaction, AnswerReaction, Profile
 import random
 
 
@@ -22,6 +22,7 @@ class Command(BaseCommand):
         self.create_questions(num_questions)
         self.create_answers(num_answers)
         self.create_ratings(num_ratings)
+        self.update_ratings()
 
     def create_users(self, num_users):
         user_objects = []
@@ -42,7 +43,6 @@ class Command(BaseCommand):
         for i in range(num_questions):
             question_author = random.choice(profiles)
             tmpQuestion = QuestionInstance(
-                question_rating=Rating.objects.create(),
                 question_author=question_author,
                 title=f'Question Title{i + 1}',
                 question_body=f'Question number: {i + 1} , from user: {question_author}.',
@@ -64,7 +64,6 @@ class Command(BaseCommand):
             answer_objects.append(AnswerInstance(
                 question=question,
                 answer_author=answer_author,
-                answer_rating=Rating.objects.create(),
                 answer_body=f'Answer for question with id: {question.id}, from user: {answer_author}. Answer num: {i}'
             ))
             QuestionInstance.objects.filter(id=question.id).update(num_answers=F('num_answers') + 1)
@@ -77,25 +76,49 @@ class Command(BaseCommand):
 
     def create_ratings(self, num_ratings):
         profiles = list(Profile.objects.all())
-        ratings = list(Rating.objects.all())
-        reaction_objects = []
+        questions = list(QuestionInstance.objects.all())
+        answers = list(AnswerInstance.objects.all())
+
+        question_reactions_set = set()
+        answer_reactions_set = set()
+        question_reactions = []
+        answer_reactions = []
 
         for _ in range(num_ratings):
-            while True:
-                profile = random.choice(profiles)
-                rating = random.choice(ratings)
-
-                if not Reaction.objects.filter(user=profile, rating=rating).exists():
+            profile = random.choice(profiles)
+            if random.choice(['question', 'answer']) == 'question':
+                question = random.choice(questions)
+                if (profile.id, question.id) not in question_reactions_set:
                     reaction_value = random.choice([-1, 1, 1, 1, 1])
-                    if reaction_value == 1:
-                        Rating.objects.filter(id=rating.id).update(get_rating=F('get_rating') + 1)
-                    elif reaction_value == -1:
-                        Rating.objects.filter(id=rating.id).update(get_rating=F('get_rating') + 1)
-                    reaction_objects.append(Reaction(
+                    question_reactions.append(QuestionReaction(
                         user=profile,
-                        reaction=reaction_value,
-                        rating=rating
+                        question=question,
+                        reaction=reaction_value
                     ))
-                    break
+                    question_reactions_set.add((profile.id, question.id))
+            else:
+                answer = random.choice(answers)
+                if (profile.id, answer.id) not in answer_reactions_set:
+                    reaction_value = random.choice([-1, 1, 1, 1, 1])
+                    answer_reactions.append(AnswerReaction(
+                        user=profile,
+                        answer=answer,
+                        reaction=reaction_value
+                    ))
+                    answer_reactions_set.add((profile.id, answer.id))
 
-        Reaction.objects.bulk_create(reaction_objects)
+        QuestionReaction.objects.bulk_create(question_reactions)
+        AnswerReaction.objects.bulk_create(answer_reactions)
+
+    def update_ratings(self):
+        for question in QuestionInstance.objects.all():
+            likes = QuestionReaction.objects.filter(question=question, reaction=1).count()
+            dislikes = QuestionReaction.objects.filter(question=question, reaction=-1).count()
+            question.question_rating = likes - dislikes
+            question.save()
+
+        for answer in AnswerInstance.objects.all():
+            likes = AnswerReaction.objects.filter(answer=answer, reaction=1).count()
+            dislikes = AnswerReaction.objects.filter(answer=answer, reaction=-1).count()
+            answer.answer_rating = likes - dislikes
+            answer.save()
